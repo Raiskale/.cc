@@ -24,6 +24,13 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 });
 
+app.get('/index.html', (req, res, next) => {
+  if (req.session.userId) {
+    return res.redirect('/dash.html');
+  }
+  next();
+});
+
 // Protect dash.html route *before* static serving
 app.get('/dash.html', (req, res, next) => {
   if (!req.session.userId) {

@@ -18,5 +18,22 @@
   </form>
 
   <p>Don't have an account? <button onclick="location.href='register.html'">Register Now</button></p>
+
+
+<script>
+  fetch('/api/check-session', { credentials: 'include' })
+    .then(res => res.json())
+    .then(data => {
+      if (data.loggedIn) {
+        window.location.href = '/dash.html';
+      }
+    })
+    .catch(() => {
+      // ignore or handle error
+    });
+</script>
+
+
+
 </body>
 </html>
