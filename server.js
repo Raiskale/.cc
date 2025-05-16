@@ -4,57 +4,47 @@ const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 
+// Always parse body BEFORE session and routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
-  secret: 'your-strong-secret', // Use a real strong secret in production
+  secret: 'your-strong-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
-    sameSite: 'lax', // IMPORTANT: helps cookie to be sent on same-site requests
-    secure: true    // Set to true if you use HTTPS; false for local dev/HTTP
+    secure: process.env.NODE_ENV === 'production', // true only if live HTTPS
+    sameSite: 'lax'
   }
 }));
-
-// Protect dash.html route
-app.use('/dash.html', (req, res, next) => {
-  if (!req.session.userId) {
-    return res.redirect('/index.html');
-  }
-  next();
-});
-
-app.get('/api/check-session', (req, res) => {
-  if (req.session.userId) {
-    res.json({ loggedIn: true });
-  } else {
-    res.json({ loggedIn: false });
-  }
-});
-
-
-
-
-app.use(express.static('public'));
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
 
+// Protect dash.html route *before* static serving
+app.get('/dash.html', (req, res, next) => {
+  if (!req.session.userId) {
+    return res.redirect('/index.html');
+  }
+  next();
+});
+
+// Serve static files AFTER auth check for dash.html
+app.use(express.static('public'));
+
 // Registration route
 app.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    const emailLower = email.toLowerCase();
     const hash = await bcrypt.hash(password, 10);
     await pool.query(
       'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)',
-      [username, emailLower, hash]
+      [username, email, hash]
     );
-    res.redirect('/index.html'); // redirect to login page
+    res.redirect('/index.html');
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).send('Server error');
@@ -65,8 +55,7 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const emailLower = email.toLowerCase();
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [emailLower]);
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
     if (result.rows.length === 0) {
       return res.status(401).send('Invalid email or password');
@@ -79,27 +68,16 @@ app.post('/login', async (req, res) => {
       return res.status(401).send('Invalid email or password');
     }
 
+    // Set session userId
     req.session.userId = user.id;
+
+    // Redirect to dashboard
     res.redirect('/dash.html');
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).send('Server error');
   }
 });
-
-
-
-app.post('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      console.error('Logout error:', err);
-      return res.status(500).send('Could not log out.');
-    }
-    res.clearCookie('connect.sid'); // clear cookie on client
-    res.redirect('/index.html');    // redirect to login page after logout
-  });
-});
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
