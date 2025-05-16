@@ -51,6 +51,18 @@ app.post('/register', async (req, res) => {
   }
 });
 
+app.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).send('Logout failed');
+    }
+    res.clearCookie('connect.sid'); // Clear session cookie
+    res.redirect('/index.html'); // Redirect to login page
+  });
+});
+
+
 // Login route
 app.post('/login', async (req, res) => {
   try {
@@ -76,6 +88,14 @@ app.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).send('Server error');
+  }
+});
+
+app.get('/api/check-session', (req, res) => {
+  if (req.session.userId) {
+    res.json({ loggedIn: true });
+  } else {
+    res.json({ loggedIn: false });
   }
 });
 
