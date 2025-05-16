@@ -8,10 +8,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
-  secret: 'your-strong-secret',  // Replace with a real strong secret in production!
+  secret: 'your-strong-secret', // Use a real strong secret in production
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 day
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000,
+    sameSite: 'lax', // IMPORTANT: helps cookie to be sent on same-site requests
+    secure: true    // Set to true if you use HTTPS; false for local dev/HTTP
+  }
 }));
 
 // Protect dash.html route
@@ -29,6 +33,7 @@ app.get('/api/check-session', (req, res) => {
     res.json({ loggedIn: false });
   }
 });
+
 
 
 
