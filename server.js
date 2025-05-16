@@ -32,14 +32,13 @@ app.get('/index.html', (req, res, next) => {
 });
 
 // Protect dash.html route *before* static serving
-// app.get('/dash.html', (req, res, next) => {
-//   if (!req.session.userId) {
-//     return res.redirect('/index.html');
-//   }
-//   next();
-// });
-
-// Serve static files AFTER auth check for dash.html
+ app.get('/dash.html', (req, res, next) => {
+   if (!req.session.userId) {
+     return res.redirect('/index.html');
+   }
+   next();
+ })
+ 
 app.use(express.static('public'));
 
 // Registration route

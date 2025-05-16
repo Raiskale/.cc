@@ -27,17 +27,20 @@
 
 
  <script>
-//   fetch('/api/check-session', { credentials: 'include' })
-//     .then(response => response.json())
-//     .then(data => {
-//       if (!data.loggedIn) {
-//         window.location.href = '/index.html';
-//       }
-//     })
-//     .catch(() => {
-//       window.location.href = '/index.html';
-//     });
-// </script>
+   fetch('/api/check-session', { credentials: 'include' })
+     .then(response => response.json())
+     .then(data => {
+          if (!data.loggedIn) {
+            window.location.href = '/index.html';
+    
+       }
+    })
+     .catch(() => {
+          window.location.href = '/index.html';
+    
+     });
+    
+ </script>
 
 
 </body>
