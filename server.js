@@ -8,10 +8,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
-  secret: 'your-strong-secret',
+  secret: 'your-strong-secret',  // Replace with a real strong secret in production!
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 }
+  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 day
 }));
 
 // Protect dash.html route
@@ -33,10 +33,11 @@ const pool = new Pool({
 app.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    const emailLower = email.toLowerCase();
     const hash = await bcrypt.hash(password, 10);
     await pool.query(
       'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)',
-      [username, email, hash]
+      [username, emailLower, hash]
     );
     res.redirect('/index.html'); // redirect to login page
   } catch (error) {
@@ -49,7 +50,8 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const emailLower = email.toLowerCase();
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [emailLower]);
 
     if (result.rows.length === 0) {
       return res.status(401).send('Invalid email or password');
