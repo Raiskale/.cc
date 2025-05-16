@@ -1,12 +1,15 @@
 const express = require('express');
 const app = express();
 const { Pool } = require('pg');
+
 const bcrypt = require('bcrypt');
 const path = require('path');
 
 const pool = new Pool({
-  connectionString: 'your-railway-database-url'
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
 });
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
