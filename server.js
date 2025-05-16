@@ -23,8 +23,10 @@ app.post('/register', async (req, res) => {
     'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)',
     [username, email, hash]
   );
-  res.send('Registered!');
+
+  res.redirect('/login.html');
 });
+
 
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
 
