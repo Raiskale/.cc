@@ -3,30 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Niilo | Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
-    You're now logged in.
+    <header>
+  <nav class="nav">
+    <div class="logo">
+      <a href="">Niilo.</a>
+    </div>
 
-    <form action="/logout" method="POST" style="display:inline;">
-  <button type="submit">Log Out</button>
-</form>
+    <div class="links">
+      <a href=""><i class='bx bxs-dashboard'></i></a>
+      <a href=""><i class='bx bxl-linkedin-square' ></i></a>
+      <a href=""><i class='bx bxl-instagram-alt' ></i></a>
+    </div>
+  </nav>
+</header>
+<h2>Dashdash</h2>
 
 
 
 
-<script>
-  fetch('/api/check-session', { credentials: 'include' })
-    .then(response => response.json())
-    .then(data => {
-      if (!data.loggedIn) {
-        window.location.href = '/index.html';
-      }
-    })
-    .catch(() => {
-      window.location.href = '/index.html';
-    });
-</script>
+ <script>
+//   fetch('/api/check-session', { credentials: 'include' })
+//     .then(response => response.json())
+//     .then(data => {
+//       if (!data.loggedIn) {
+//         window.location.href = '/index.html';
+//       }
+//     })
+//     .catch(() => {
+//       window.location.href = '/index.html';
+//     });
+// </script>
 
 
 </body>
