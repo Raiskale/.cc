@@ -22,6 +22,16 @@ app.use('/dash.html', (req, res, next) => {
   next();
 });
 
+app.get('/api/check-session', (req, res) => {
+  if (req.session.userId) {
+    res.json({ loggedIn: true });
+  } else {
+    res.json({ loggedIn: false });
+  }
+});
+
+
+
 app.use(express.static('public'));
 
 const pool = new Pool({
