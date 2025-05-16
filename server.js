@@ -3,11 +3,28 @@ const app = express();
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const path = require('path');
+const session = require('express-session');
+
+
+app.use(session({
+  secret: 'your-strong-secret', // Replace with a secure secret in production
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 day
+}));
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
+
+app.get('/dash.html', (req, res, next) => {
+  if (!req.session.userId) {
+    return res.redirect('/index.html'); // Not logged in, redirect to login page
+  }
+  next(); // Logged in, continue to serve dash.html
+});
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -53,7 +70,10 @@ app.post('/login', async (req, res) => {
       return res.status(401).send('Invalid email or password');
     }
 
-    // Password valid, redirect to dashboard page (dash.html)
+    // Password valid, save user ID in session
+    req.session.userId = user.id;
+
+    // Redirect to dashboard page (dash.html)
     res.redirect('/dash.html');
   } catch (error) {
     console.error('Login error:', error);
@@ -61,5 +81,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Start server
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
