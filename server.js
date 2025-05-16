@@ -72,6 +72,20 @@ app.post('/login', async (req, res) => {
   }
 });
 
+
+
+app.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).send('Could not log out.');
+    }
+    res.clearCookie('connect.sid'); // clear cookie on client
+    res.redirect('/index.html');    // redirect to login page after logout
+  });
+});
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
